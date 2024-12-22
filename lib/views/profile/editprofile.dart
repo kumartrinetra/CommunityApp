@@ -5,8 +5,10 @@ import 'package:cloudinary_api/uploader/uploader.dart';
 import 'package:cloudinary_url_gen/cloudinary.dart';
 import 'package:cloudinary_url_gen/util/environment.dart';
 import 'package:communityapp/controllers/profile_controller.dart';
+import 'package:communityapp/views/profile/profile_view.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:get/get.dart';
 import 'package:image_picker/image_picker.dart';
 
@@ -20,7 +22,34 @@ class EditProfile extends StatefulWidget {
 }
 
 class _EditProfileState extends State<EditProfile> {
-  ProfileController controller = Get.put(ProfileController());
+  final _nameController = TextEditingController();
+  final _emailController = TextEditingController();
+  final _phoneController = TextEditingController();
+  final _linkedinController = TextEditingController();
+  final _githubController = TextEditingController();
+  Future<ProfileModel> _getUserData() async {
+    return await controller.getUserData();
+  }
+
+  ProfileController controller = ProfileController();
+  String? imageLink;
+  String? currId;
+  @override
+  void initState() {
+    super.initState();
+    _getUserData().then((userData) {
+      imageLink = userData.avatarlink;
+      _nameController.text = userData.name;
+      currId = userData.id;
+      //print('${userData.id}');
+      _emailController.text = userData.email;
+      _phoneController.text = userData.phone;
+      _linkedinController.text = userData.linkedin;
+      _githubController.text = userData.github;
+    });
+  }
+
+  //ProfileController controller = Get.put(ProfileController());
   File? selectedImage;
   @override
   Widget build(BuildContext context) {
@@ -50,7 +79,7 @@ class _EditProfileState extends State<EditProfile> {
                   children: [
                     IconButton(
                         onPressed: () {
-                          Get.back();
+                          Get.off(MyProfilePage());
                         },
                         icon: SizedBox(
                             height: MediaQuery.of(context).size.height * .04,
@@ -77,469 +106,377 @@ class _EditProfileState extends State<EditProfile> {
                 SizedBox(
                   height: MediaQuery.of(context).size.height * .025,
                 ),
-                FutureBuilder(
-                  future: controller.getUserData(),
-                  builder: (context, snapshot) {
-                    if (snapshot.connectionState == ConnectionState.done) {
-                      if (snapshot.hasData) {
-                        ProfileModel userData = snapshot.data as ProfileModel;
-                        TextEditingController nameController =
-                            TextEditingController(text: userData.name);
-                        TextEditingController emailController =
-                            TextEditingController(text: userData.email);
-                        TextEditingController phoneController =
-                            TextEditingController(text: userData.phone);
-                        TextEditingController linkedinController =
-                            TextEditingController(text: userData.linkedin);
-                        TextEditingController githubController =
-                            TextEditingController(text: userData.github);
-                        return Column(
+                Column(
+                  children: [
+                    Row(mainAxisAlignment: MainAxisAlignment.center, children: [
+                      SizedBox(
+                        height: MediaQuery.of(context).size.height * .15,
+                        width: MediaQuery.of(context).size.width * .25,
+                        child: selectedImage != null
+                            ? CircleAvatar(
+                                backgroundImage: FileImage(selectedImage!),
+                                radius: 25,
+                              )
+                            : imageLink != null
+                                ? Image.network(imageLink!)
+                                : Image.asset('assets/images/avatar.png'),
+                      ),
+                      Transform.translate(
+                        offset: Offset(-23, 20),
+                        child: InkWell(
+                          onTap: () {
+                            showModalBottomSheet(
+                                context: context,
+                                builder: (context) {
+                                  return SizedBox(
+                                    child: Padding(
+                                      padding: const EdgeInsets.symmetric(
+                                          vertical: 25, horizontal: 25),
+                                      child: Column(
+                                        children: [
+                                          Text('Pick Image'),
+                                          Row(
+                                            mainAxisAlignment:
+                                                MainAxisAlignment.spaceEvenly,
+                                            children: [
+                                              Column(
+                                                children: [
+                                                  IconButton(
+                                                      onPressed: () {
+                                                        _pickImageFromCamera();
+                                                      },
+                                                      icon: Icon(Icons
+                                                          .camera_alt_rounded)),
+                                                  Text('Camera'),
+                                                ],
+                                              ),
+                                              Column(
+                                                children: [
+                                                  IconButton(
+                                                      onPressed: () {
+                                                        _pickImageFromGallery();
+                                                      },
+                                                      icon: Icon(Icons.photo)),
+                                                  Text('Gallery'),
+                                                ],
+                                              ),
+                                            ],
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                  );
+                                });
+                          },
+                          child: CircleAvatar(
+                            radius: MediaQuery.of(context).size.width * .055,
+                            backgroundColor: Colors.white,
+                            child: CircleAvatar(
+                              radius: MediaQuery.of(context).size.width * .04,
+                              backgroundColor: Color(0xff41BD73),
+                              child: CircleAvatar(
+                                  radius:
+                                      MediaQuery.of(context).size.width * .03,
+                                  backgroundColor: Colors.transparent,
+                                  child: Image.asset(
+                                    'assets/images/edit.png',
+                                    color: Colors.white,
+                                  )),
+                            ),
+                          ),
+                        ),
+                      ),
+                    ]),
+                    SizedBox(
+                      height: MediaQuery.of(context).size.height * .035,
+                    ),
+                    Column(
+                      //mainAxisAlignment: MainAxisAlignment.start,
+                      //crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Column(
+                          // mainAxisAlignment: MainAxisAlignment.start,
+                          crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Row(
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                children: [
-                                  SizedBox(
-                                    height: MediaQuery.of(context).size.height *
-                                        .15,
-                                    width:
-                                        MediaQuery.of(context).size.width * .25,
-                                    child: selectedImage != null
-                                        ? Image.file(selectedImage!)
-                                        : userData.avatarlink != null
-                                            ? Image.network(
-                                                userData.avatarlink!)
-                                            : Icon(Icons.person),
-                                  ),
-                                  InkWell(
-                                    onTap: () {
-                                      showModalBottomSheet(
-                                          context: context,
-                                          builder: (context) {
-                                            return SizedBox(
-                                              child: Padding(
-                                                padding:
-                                                    const EdgeInsets.symmetric(
-                                                        vertical: 25,
-                                                        horizontal: 25),
-                                                child: Column(
-                                                  children: [
-                                                    Text('Pick Image'),
-                                                    Row(
-                                                      mainAxisAlignment:
-                                                          MainAxisAlignment
-                                                              .spaceEvenly,
-                                                      children: [
-                                                        Column(
-                                                          children: [
-                                                            IconButton(
-                                                                onPressed: () {
-                                                                  _pickImageFromCamera();
-                                                                },
-                                                                icon: Icon(Icons
-                                                                    .camera_alt_rounded)),
-                                                            Text('Camera'),
-                                                          ],
-                                                        ),
-                                                        Column(
-                                                          children: [
-                                                            IconButton(
-                                                                onPressed: () {
-                                                                  _pickImageFromGallery();
-                                                                },
-                                                                icon: Icon(Icons
-                                                                    .photo)),
-                                                            Text('Gallery'),
-                                                          ],
-                                                        ),
-                                                      ],
-                                                    ),
-                                                  ],
-                                                ),
-                                              ),
-                                            );
-                                          });
-                                    },
-                                    child: Transform.translate(
-                                      offset: Offset(-23, 20),
-                                      child: CircleAvatar(
-                                        radius:
-                                            MediaQuery.of(context).size.width *
-                                                .055,
-                                        backgroundColor: Colors.white,
-                                        child: CircleAvatar(
-                                          radius: MediaQuery.of(context)
-                                                  .size
-                                                  .width *
-                                              .04,
-                                          backgroundColor: Color(0xff41BD73),
-                                          child: CircleAvatar(
-                                              radius: MediaQuery.of(context)
-                                                      .size
-                                                      .width *
-                                                  .03,
-                                              backgroundColor:
-                                                  Colors.transparent,
-                                              child: Image.asset(
-                                                'assets/images/edit.png',
-                                                color: Colors.white,
-                                              )),
-                                        ),
-                                      ),
-                                    ),
-                                  ),
-                                ]),
-                            SizedBox(
-                              height: MediaQuery.of(context).size.height * .035,
-                            ),
-                            Column(
-                              //mainAxisAlignment: MainAxisAlignment.start,
-                              //crossAxisAlignment: CrossAxisAlignment.start,
+                              mainAxisAlignment: MainAxisAlignment.start,
                               children: [
-                                Column(
-                                  // mainAxisAlignment: MainAxisAlignment.start,
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Row(
-                                      mainAxisAlignment:
-                                          MainAxisAlignment.start,
-                                      children: [
-                                        Text(
-                                          'Name',
-                                          style: TextStyle(
-                                              fontFamily: 'Inter',
-                                              color: Color(0xff9A9494),
-                                              fontSize: 12.5),
-                                        ),
-                                      ],
-                                    ),
-                                    SizedBox(
-                                      height:
-                                          MediaQuery.of(context).size.height *
-                                              .005,
-                                    ),
-                                    SizedBox(
-                                      height:
-                                          MediaQuery.of(context).size.height *
-                                              .035,
-                                      child: TextFormField(
-                                        cursorHeight:
-                                            MediaQuery.of(context).size.height *
-                                                .02,
-                                        cursorWidth:
-                                            MediaQuery.of(context).size.width *
-                                                .003,
-                                        maxLines: null,
-                                        style: TextStyle(
-                                            fontWeight: FontWeight.w500,
-                                            fontFamily: 'JosefinSans',
-                                            fontSize: 15),
-                                        expands: true,
-                                        decoration: InputDecoration(
-                                          contentPadding: EdgeInsets.zero,
-                                          //enabledBorder: UnderlineInputBorder(borderSide: BorderSide(width: .5, color: Color(0xff41BD73))),
-                                          //border: UnderlineInputBorder(borderSide: BorderSide(width: .5, color: Color(0xff41BD73))),
-                                          focusedBorder: UnderlineInputBorder(
-                                            borderSide:
-                                                BorderSide(color: Colors.black),
-                                          ),
-                                        ),
-                                        //initialValue: userData.name,
-                                        controller: nameController,
-
-                                      ),
-                                    ),
-                                  ],
+                                Text(
+                                  'Name',
+                                  style: TextStyle(
+                                      fontFamily: 'Inter',
+                                      color: Color(0xff9A9494),
+                                      fontSize: 12.5),
                                 ),
-                                SizedBox(
-                                  height:
-                                      MediaQuery.of(context).size.height * .025,
-                                ),
-                                Column(
-                                  // mainAxisAlignment: MainAxisAlignment.start,
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Row(
-                                      mainAxisAlignment:
-                                          MainAxisAlignment.start,
-                                      children: [
-                                        Text(
-                                          'Email Address',
-                                          style: TextStyle(
-                                              fontFamily: 'Inter',
-                                              color: Color(0xff9A9494),
-                                              fontSize: 12.5),
-                                        ),
-                                      ],
-                                    ),
-                                    SizedBox(
-                                      height:
-                                          MediaQuery.of(context).size.height *
-                                              .005,
-                                    ),
-                                    SizedBox(
-                                      height:
-                                          MediaQuery.of(context).size.height *
-                                              .035,
-                                      child: TextFormField(
-                                        cursorHeight:
-                                            MediaQuery.of(context).size.height *
-                                                .02,
-                                        cursorWidth:
-                                            MediaQuery.of(context).size.width *
-                                                .003,
-                                        style: TextStyle(
-                                            fontWeight: FontWeight.w500,
-                                            fontFamily: 'JosefinSans',
-                                            fontSize: 15),
-                                        maxLines: null,
-                                        expands: true,
-                                        decoration: InputDecoration(
-                                          focusedBorder: UnderlineInputBorder(
-                                            borderSide:
-                                                BorderSide(color: Colors.black),
-                                          ),
-                                          contentPadding: EdgeInsets.zero,
-                                          border: UnderlineInputBorder(
-                                              borderSide:
-                                                  BorderSide(width: .5)),
-                                        ),
-                                        //initialValue: userData.email,
-                                        controller: emailController,
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                                SizedBox(
-                                  height:
-                                      MediaQuery.of(context).size.height * .025,
-                                ),
-                                Column(
-                                  // mainAxisAlignment: MainAxisAlignment.start,
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-
-                                  children: [
-                                    Row(
-                                      mainAxisAlignment:
-                                          MainAxisAlignment.start,
-                                      children: [
-                                        Text(
-                                          'Phone',
-                                          style: TextStyle(
-                                              fontFamily: 'Inter',
-                                              color: Color(0xff9A9494),
-                                              fontSize: 12.5),
-                                        ),
-                                      ],
-                                    ),
-                                    SizedBox(
-                                      height:
-                                          MediaQuery.of(context).size.height *
-                                              .005,
-                                    ),
-                                    SizedBox(
-                                      height:
-                                          MediaQuery.of(context).size.height *
-                                              .035,
-                                      child: TextFormField(
-                                        style: TextStyle(
-                                            fontWeight: FontWeight.w500,
-                                            fontFamily: 'JosefinSans',
-                                            fontSize: 15),
-                                        cursorHeight:
-                                            MediaQuery.of(context).size.height *
-                                                .02,
-                                        cursorWidth:
-                                            MediaQuery.of(context).size.width *
-                                                .003,
-                                        maxLines: null,
-                                        expands: true,
-                                        decoration: InputDecoration(
-                                          focusedBorder: UnderlineInputBorder(
-                                            borderSide:
-                                                BorderSide(color: Colors.black),
-                                          ),
-                                          contentPadding: EdgeInsets.zero,
-                                          border: UnderlineInputBorder(
-                                              borderSide:
-                                                  BorderSide(width: .5)),
-                                        ),
-                                        //initialValue: userData.phone,
-                                        controller: phoneController,
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                                SizedBox(
-                                  height:
-                                      MediaQuery.of(context).size.height * .025,
-                                ),
-                                Column(
-                                  // mainAxisAlignment: MainAxisAlignment.start,
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Row(
-                                      mainAxisAlignment:
-                                          MainAxisAlignment.start,
-                                      children: [
-                                        Text(
-                                          'Linkedin',
-                                          style: TextStyle(
-                                              fontFamily: 'Inter',
-                                              color: Color(0xff9A9494),
-                                              fontSize: 12.5),
-                                        ),
-                                      ],
-                                    ),
-                                    SizedBox(
-                                      height:
-                                          MediaQuery.of(context).size.height *
-                                              .005,
-                                    ),
-                                    SizedBox(
-                                      height:
-                                          MediaQuery.of(context).size.height *
-                                              .035,
-                                      child: TextFormField(
-                                        style: TextStyle(
-                                            fontWeight: FontWeight.w500,
-                                            fontFamily: 'JosefinSans',
-                                            fontSize: 15),
-                                        cursorHeight:
-                                            MediaQuery.of(context).size.height *
-                                                .02,
-                                        cursorWidth:
-                                            MediaQuery.of(context).size.width *
-                                                .003,
-                                        maxLines: null,
-                                        expands: true,
-                                        decoration: InputDecoration(
-                                          focusedBorder: UnderlineInputBorder(
-                                            borderSide:
-                                                BorderSide(color: Colors.black),
-                                          ),
-                                          contentPadding: EdgeInsets.zero,
-                                          border: UnderlineInputBorder(
-                                              borderSide:
-                                                  BorderSide(width: .5)),
-                                        ),
-                                        //initialValue: userData.linkedin,
-                                        controller: linkedinController,
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                                SizedBox(
-                                  height:
-                                      MediaQuery.of(context).size.height * .025,
-                                ),
-                                Column(
-                                  // mainAxisAlignment: MainAxisAlignment.start,
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Row(
-                                      mainAxisAlignment:
-                                          MainAxisAlignment.start,
-                                      children: [
-                                        Text(
-                                          'Github',
-                                          style: TextStyle(
-                                              fontFamily: 'Inter',
-                                              color: Color(0xff9A9494),
-                                              fontSize: 12.5),
-                                        ),
-                                      ],
-                                    ),
-                                    SizedBox(
-                                      height:
-                                          MediaQuery.of(context).size.height *
-                                              .005,
-                                    ),
-                                    SizedBox(
-                                      height:
-                                          MediaQuery.of(context).size.height *
-                                              .035,
-                                      child: TextFormField(
-                                        cursorHeight:
-                                            MediaQuery.of(context).size.height *
-                                                .02,
-                                        cursorWidth:
-                                            MediaQuery.of(context).size.width *
-                                                .003,
-                                        maxLines: null,
-                                        style: TextStyle(
-                                            fontWeight: FontWeight.w500,
-                                            fontFamily: 'JosefinSans',
-                                            fontSize: 15),
-                                        expands: true,
-                                        decoration: InputDecoration(
-                                          focusedBorder: UnderlineInputBorder(
-                                            borderSide:
-                                                BorderSide(color: Colors.black),
-                                          ),
-                                          contentPadding: EdgeInsets.zero,
-                                          border: UnderlineInputBorder(
-                                              borderSide:
-                                                  BorderSide(width: .5)),
-                                        ),
-                                        //initialValue: userData.github,
-                                        controller: githubController,
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                                //SizedBox(height: MediaQuery.of(context).size.height * .020,),
                               ],
                             ),
                             SizedBox(
-                              height: MediaQuery.of(context).size.width * .12,
+                              height: MediaQuery.of(context).size.height * .005,
                             ),
                             SizedBox(
-                              height: MediaQuery.of(context).size.height * .05,
-                              child: OutlinedButton(
-                                onPressed: () async {
-                                  final userData = ProfileModel(
-                                    name: nameController.text.trim(),
-                                    phone: phoneController.text.trim(),
-                                    email: emailController.text.trim(),
-                                    //avatarlink: controller.imageUrl.toString(),
-                                    github: githubController.text.trim(),
-                                    linkedin: linkedinController.text.trim(),
-                                  );
-                                  await controller.UpdateRecord(userData);
-                                },
-                                child: Text(
-                                  'Save',
-                                  style: TextStyle(
-                                      fontFamily: 'Inter',
-                                      fontWeight: FontWeight.w500,
-                                      color: Colors.white),
+                              height: MediaQuery.of(context).size.height * .035,
+                              child: TextFormField(
+                                cursorHeight:
+                                    MediaQuery.of(context).size.height * .02,
+                                cursorWidth:
+                                    MediaQuery.of(context).size.width * .003,
+                                maxLines: null,
+                                style: TextStyle(
+                                    fontWeight: FontWeight.w500,
+                                    fontFamily: 'JosefinSans',
+                                    fontSize: 15),
+                                expands: true,
+                                decoration: InputDecoration(
+                                  contentPadding: EdgeInsets.zero,
+                                  //enabledBorder: UnderlineInputBorder(borderSide: BorderSide(width: .5, color: Color(0xff41BD73))),
+                                  //border: UnderlineInputBorder(borderSide: BorderSide(width: .5, color: Color(0xff41BD73))),
+                                  focusedBorder: UnderlineInputBorder(
+                                    borderSide: BorderSide(color: Colors.black),
+                                  ),
                                 ),
-                                style: ButtonStyle(
-                                    backgroundColor: MaterialStateProperty.all(
-                                        Color(0xff41BD73)),
-                                    side: MaterialStateProperty.all(BorderSide(
-                                        width: 0, color: Colors.transparent)),
-                                    shape: MaterialStateProperty.all(
-                                        RoundedRectangleBorder(
-                                            borderRadius:
-                                                BorderRadius.circular(15)))),
+                                //initialValue: userData.name,
+                                controller: _nameController,
                               ),
                             ),
                           ],
-                        );
-                      }
-                    } else if (snapshot.hasError) {
-                      return Center(
-                        child: Text(snapshot.error.toString()),
-                      );
-                    } else {
-                      return const Center(
-                        child: CircularProgressIndicator(),
-                      );
-                    }
-                    return Text('Something Went Wrong');
-                  },
-                ),
+                        ),
+                        SizedBox(
+                          height: MediaQuery.of(context).size.height * .025,
+                        ),
+                        Column(
+                          // mainAxisAlignment: MainAxisAlignment.start,
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.start,
+                              children: [
+                                Text(
+                                  'Email Address',
+                                  style: TextStyle(
+                                      fontFamily: 'Inter',
+                                      color: Color(0xff9A9494),
+                                      fontSize: 12.5),
+                                ),
+                              ],
+                            ),
+                            SizedBox(
+                              height: MediaQuery.of(context).size.height * .005,
+                            ),
+                            SizedBox(
+                              height: MediaQuery.of(context).size.height * .035,
+                              child: TextFormField(
+                                cursorHeight:
+                                    MediaQuery.of(context).size.height * .02,
+                                cursorWidth:
+                                    MediaQuery.of(context).size.width * .003,
+                                style: TextStyle(
+                                    fontWeight: FontWeight.w500,
+                                    fontFamily: 'JosefinSans',
+                                    fontSize: 15),
+                                maxLines: null,
+                                expands: true,
+                                decoration: InputDecoration(
+                                  focusedBorder: UnderlineInputBorder(
+                                    borderSide: BorderSide(color: Colors.black),
+                                  ),
+                                  contentPadding: EdgeInsets.zero,
+                                  border: UnderlineInputBorder(
+                                      borderSide: BorderSide(width: .5)),
+                                ),
+                                //initialValue: userData.email,
+                                controller: _emailController,
+                              ),
+                            ),
+                          ],
+                        ),
+                        SizedBox(
+                          height: MediaQuery.of(context).size.height * .025,
+                        ),
+                        Column(
+                          // mainAxisAlignment: MainAxisAlignment.start,
+                          crossAxisAlignment: CrossAxisAlignment.start,
+
+                          children: [
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.start,
+                              children: [
+                                Text(
+                                  'Phone',
+                                  style: TextStyle(
+                                      fontFamily: 'Inter',
+                                      color: Color(0xff9A9494),
+                                      fontSize: 12.5),
+                                ),
+                              ],
+                            ),
+                            SizedBox(
+                              height: MediaQuery.of(context).size.height * .005,
+                            ),
+                            SizedBox(
+                              height: MediaQuery.of(context).size.height * .035,
+                              child: TextFormField(
+                                style: TextStyle(
+                                    fontWeight: FontWeight.w500,
+                                    fontFamily: 'JosefinSans',
+                                    fontSize: 15),
+                                cursorHeight:
+                                    MediaQuery.of(context).size.height * .02,
+                                cursorWidth:
+                                    MediaQuery.of(context).size.width * .003,
+                                maxLines: null,
+                                expands: true,
+                                decoration: InputDecoration(
+                                  focusedBorder: UnderlineInputBorder(
+                                    borderSide: BorderSide(color: Colors.black),
+                                  ),
+                                  contentPadding: EdgeInsets.zero,
+                                  border: UnderlineInputBorder(
+                                      borderSide: BorderSide(width: .5)),
+                                ),
+                                //initialValue: userData.phone,
+                                controller: _phoneController,
+                              ),
+                            ),
+                          ],
+                        ),
+                        SizedBox(
+                          height: MediaQuery.of(context).size.height * .025,
+                        ),
+                        Column(
+                          // mainAxisAlignment: MainAxisAlignment.start,
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.start,
+                              children: [
+                                Text(
+                                  'Linkedin',
+                                  style: TextStyle(
+                                      fontFamily: 'Inter',
+                                      color: Color(0xff9A9494),
+                                      fontSize: 12.5),
+                                ),
+                              ],
+                            ),
+                            SizedBox(
+                              height: MediaQuery.of(context).size.height * .005,
+                            ),
+                            SizedBox(
+                              height: MediaQuery.of(context).size.height * .035,
+                              child: TextFormField(
+                                style: TextStyle(
+                                    fontWeight: FontWeight.w500,
+                                    fontFamily: 'JosefinSans',
+                                    fontSize: 15),
+                                cursorHeight:
+                                    MediaQuery.of(context).size.height * .02,
+                                cursorWidth:
+                                    MediaQuery.of(context).size.width * .003,
+                                maxLines: null,
+                                expands: true,
+                                decoration: InputDecoration(
+                                  focusedBorder: UnderlineInputBorder(
+                                    borderSide: BorderSide(color: Colors.black),
+                                  ),
+                                  contentPadding: EdgeInsets.zero,
+                                  border: UnderlineInputBorder(
+                                      borderSide: BorderSide(width: .5)),
+                                ),
+                                //initialValue: userData.linkedin,
+                                controller: _linkedinController,
+                              ),
+                            ),
+                          ],
+                        ),
+                        SizedBox(
+                          height: MediaQuery.of(context).size.height * .025,
+                        ),
+                        Column(
+                          // mainAxisAlignment: MainAxisAlignment.start,
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.start,
+                              children: [
+                                Text(
+                                  'Github',
+                                  style: TextStyle(
+                                      fontFamily: 'Inter',
+                                      color: Color(0xff9A9494),
+                                      fontSize: 12.5),
+                                ),
+                              ],
+                            ),
+                            SizedBox(
+                              height: MediaQuery.of(context).size.height * .005,
+                            ),
+                            SizedBox(
+                              height: MediaQuery.of(context).size.height * .035,
+                              child: TextFormField(
+                                cursorHeight:
+                                    MediaQuery.of(context).size.height * .02,
+                                cursorWidth:
+                                    MediaQuery.of(context).size.width * .003,
+                                maxLines: null,
+                                style: TextStyle(
+                                    fontWeight: FontWeight.w500,
+                                    fontFamily: 'JosefinSans',
+                                    fontSize: 15),
+                                expands: true,
+                                decoration: InputDecoration(
+                                  focusedBorder: UnderlineInputBorder(
+                                    borderSide: BorderSide(color: Colors.black),
+                                  ),
+                                  contentPadding: EdgeInsets.zero,
+                                  border: UnderlineInputBorder(
+                                      borderSide: BorderSide(width: .5)),
+                                ),
+                                //initialValue: userData.github,
+                                controller: _githubController,
+                              ),
+                            ),
+                          ],
+                        ),
+                        //SizedBox(height: MediaQuery.of(context).size.height * .020,),
+                      ],
+                    ),
+                    SizedBox(
+                      height: MediaQuery.of(context).size.width * .12,
+                    ),
+                    SizedBox(
+                      height: MediaQuery.of(context).size.height * .05,
+                      child: OutlinedButton(
+                        onPressed: () async {
+                          final userData = ProfileModel(
+                            name: _nameController.text.trim(),
+                            phone: _phoneController.text.trim(),
+                            email: _emailController.text.trim(),
+                            id: currId,
+                            avatarlink: controller.imageUrl,
+                            github: _githubController.text.trim(),
+                            linkedin: _linkedinController.text.trim(),
+                          );
+                          await controller.UpdateRecord(userData);
+                        },
+                        child: Text(
+                          'Save',
+                          style: TextStyle(
+                              fontFamily: 'Inter',
+                              fontWeight: FontWeight.w500,
+                              color: Colors.white),
+                        ),
+                        style: ButtonStyle(
+                            backgroundColor:
+                                MaterialStateProperty.all(Color(0xff41BD73)),
+                            side: MaterialStateProperty.all(BorderSide(
+                                width: 0, color: Colors.transparent)),
+                            shape: MaterialStateProperty.all(
+                                RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(15)))),
+                      ),
+                    ),
+                  ],
+                )
               ],
             ),
           ),
@@ -554,11 +491,20 @@ class _EditProfileState extends State<EditProfile> {
     setState(() {
       selectedImage = File(returnedImage!.path);
     });
-    final response = await Cloudinary().uploader().upload(selectedImage);
-    if (response != null &&
-        response.data != null &&
-        response.data!.secureUrl != null) {
-      controller.imageUrl = response.data!.secureUrl!;
+    if (selectedImage != null) {
+      print('Image Picked!');
+      final _imageFile = File(selectedImage!.path);
+      if (_imageFile != null) {
+        var cloudinary = Cloudinary.fromStringUrl(
+            'cloudinary://239118281366527:${dotenv.env['CloudinaryApi']}@daj7vxuyb');
+        final response = await cloudinary.uploader().upload(_imageFile);
+        if (response != null &&
+            response.data != null &&
+            response.data!.secureUrl != null) {
+          print('Helllo');
+          controller.imageUrl = response.data!.secureUrl!;
+        }
+      }
     }
   }
 
@@ -572,7 +518,7 @@ class _EditProfileState extends State<EditProfile> {
     if (response != null &&
         response.data != null &&
         response.data!.secureUrl != null) {
-      controller.imageUrl = response.data!.secureUrl!;
+      //controller.imageUrl = response.data!.secureUrl!;
     }
   }
 }

@@ -7,7 +7,6 @@ class ProfileController extends GetxController{
   static ProfileController get instance => Get.find();
   final userRepo = Get.put(UserRepo());
   final _auth = FirebaseAuth.instance;
-
   String? imageUrl;
   createUser(ProfileModel profile)
   {

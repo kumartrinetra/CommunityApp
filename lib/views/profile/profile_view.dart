@@ -23,6 +23,7 @@ class _MyProfilePageState extends State<MyProfilePage> {
   @override
   Widget build(BuildContext context) {
     final controller = Get.put(ProfileController());
+
     return Scaffold(
       body: SingleChildScrollView(
         child: Container(
@@ -43,6 +44,7 @@ class _MyProfilePageState extends State<MyProfilePage> {
               future: controller.getUserData(),
               builder: (context, snapshot) {
                 if (snapshot.connectionState == ConnectionState.done) {
+
                   if (snapshot.hasData) {
                     ProfileModel userData = snapshot.data as ProfileModel;
                     return Column(
@@ -81,8 +83,12 @@ class _MyProfilePageState extends State<MyProfilePage> {
                                     MediaQuery.of(context).size.height * .15,
                                 width: MediaQuery.of(context).size.width * .25,
                                 child: userData.avatarlink != null
-                                    ? Image.network(userData.avatarlink!)
-                                    : Icon(Icons.person)),
+                                    ? CircleAvatar(
+                                        backgroundImage:
+                                            NetworkImage(userData.avatarlink!),
+                                        radius: 25,
+                                      )
+                                    : Image.asset('assets/images/avatar.png')),
                             Row(
                               mainAxisAlignment: MainAxisAlignment.center,
                               children: [
@@ -110,7 +116,7 @@ class _MyProfilePageState extends State<MyProfilePage> {
                                 ),
                                 InkWell(
                                   onTap: () {
-                                    Get.to(EditProfile());
+                                    Get.off(EditProfile());
                                   },
                                   child: Row(children: [
                                     SizedBox(

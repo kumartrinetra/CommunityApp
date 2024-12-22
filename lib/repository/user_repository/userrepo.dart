@@ -26,6 +26,7 @@ class UserRepo extends GetxController {
   }
 
   Future<void> UpdateuserRecord(ProfileModel profile) async {
-    _db.collection('users').doc(profile.id).update(profile.toJson());
+    print('${profile.id}');
+    _db.collection('users').doc(profile.id).update(profile.toJson()).whenComplete((){Get.snackbar('Done!', 'ProfileUpdated');});
   }
 }
