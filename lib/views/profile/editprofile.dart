@@ -514,11 +514,17 @@ class _EditProfileState extends State<EditProfile> {
     setState(() {
       selectedImage = File(returnedImage!.path);
     });
-    final response = await Cloudinary().uploader().upload(selectedImage);
-    if (response != null &&
-        response.data != null &&
-        response.data!.secureUrl != null) {
-      //controller.imageUrl = response.data!.secureUrl!;
+    final _imageFile = File(selectedImage!.path);
+    if (_imageFile != null) {
+      var cloudinary = Cloudinary.fromStringUrl(
+          'cloudinary://239118281366527:${dotenv.env['CloudinaryApi']}@daj7vxuyb');
+      final response = await cloudinary.uploader().upload(_imageFile);
+      if (response != null &&
+          response.data != null &&
+          response.data!.secureUrl != null) {
+        print('Helllo');
+        controller.imageUrl = response.data!.secureUrl!;
+      }
     }
   }
 }
