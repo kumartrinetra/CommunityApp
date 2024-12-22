@@ -1,5 +1,11 @@
 import 'package:communityapp/firebase_options.dart';
 import 'package:communityapp/views/auth/login_view.dart';
+import 'package:communityapp/views/profile/accountsettings.dart';
+import 'package:communityapp/views/profile/editprofile.dart';
+import 'package:communityapp/views/profile/inputpage.dart';
+import 'package:communityapp/views/profile/loginpage.dart';
+import 'package:communityapp/views/profile/profile_view.dart';
+import 'package:communityapp/views/profile/signuppage.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
@@ -7,10 +13,11 @@ import 'package:get/get.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  await dotenv.load(fileName: ".env");
+  await dotenv.load(fileName: "assets/.env");
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
-  runApp(const GetMaterialApp(
-    home: LoginView(),
+  runApp(GetMaterialApp(
+    debugShowCheckedModeBanner: false,
+    home: LoginPage(),
   ));
 }
 
