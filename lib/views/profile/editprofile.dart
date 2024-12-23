@@ -38,7 +38,6 @@ class _EditProfileState extends State<EditProfile> {
   void initState() {
     super.initState();
     _getUserData().then((userData) {
-      imageLink = userData.avatarlink;
       _nameController.text = userData.name;
       currId = userData.id;
       //print('${userData.id}');
@@ -46,6 +45,8 @@ class _EditProfileState extends State<EditProfile> {
       _phoneController.text = userData.phone;
       _linkedinController.text = userData.linkedin;
       _githubController.text = userData.github;
+      //print('${userData.avatarlink}');
+      imageLink = userData.avatarlink;
     });
   }
 
@@ -53,6 +54,7 @@ class _EditProfileState extends State<EditProfile> {
   File? selectedImage;
   @override
   Widget build(BuildContext context) {
+    //print('${imageLink}');
     return Scaffold(
       body: SingleChildScrollView(
         child: Container(
@@ -128,35 +130,57 @@ class _EditProfileState extends State<EditProfile> {
                             showModalBottomSheet(
                                 context: context,
                                 builder: (context) {
-                                  return SizedBox(
+                                  return Container(
                                     child: Padding(
                                       padding: const EdgeInsets.symmetric(
                                           vertical: 25, horizontal: 25),
                                       child: Column(
+
                                         children: [
-                                          Text('Pick Image'),
+                                          Text('Pick Image', style: TextStyle(fontSize: 16, ),),
+                                          SizedBox(
+                                            height: MediaQuery.of(context).size.height*.04,
+                                          ),
                                           Row(
                                             mainAxisAlignment:
-                                                MainAxisAlignment.spaceEvenly,
+                                                MainAxisAlignment.spaceAround,
                                             children: [
                                               Column(
                                                 children: [
-                                                  IconButton(
-                                                      onPressed: () {
-                                                        _pickImageFromCamera();
-                                                      },
-                                                      icon: Icon(Icons
-                                                          .camera_alt_rounded)),
+                                                  InkWell(
+                                                    child: CircleAvatar(
+                                                      child: CircleAvatar(
+                                                          radius: MediaQuery.of(context).size.height*.038,
+                                                        backgroundColor: Color(0xffF7F2F9),
+                                                        child: Center(child: Icon(Icons.camera_alt_rounded, color: Colors.black,)),
+                                                      ),
+                                                      radius: MediaQuery.of(context).size.height*.04,
+                                                      backgroundColor: Colors.black,
+                                                    ),
+                                                    onTap: (){
+                                                      _pickImageFromCamera();
+                                                    },
+                                                  ),
                                                   Text('Camera'),
                                                 ],
                                               ),
                                               Column(
                                                 children: [
-                                                  IconButton(
-                                                      onPressed: () {
-                                                        _pickImageFromGallery();
-                                                      },
-                                                      icon: Icon(Icons.photo)),
+                                                  InkWell(
+                                                    child: CircleAvatar(
+                                                      child: CircleAvatar(
+                                                        radius: MediaQuery.of(context).size.height*.038,
+                                                        backgroundColor: Color(0xffF7F2F9),
+                                                        child: Center(child: Icon(Icons.photo, color: Colors.black,)),
+                                                      ),
+                                                      radius: MediaQuery.of(context).size.height*.04,
+                                                      backgroundColor: Colors.black,
+                                                    ),
+                                                    onTap: (){
+                                                      _pickImageFromGallery();
+                                                    },
+                                                  ),
+
                                                   Text('Gallery'),
                                                 ],
                                               ),
@@ -447,6 +471,19 @@ class _EditProfileState extends State<EditProfile> {
                       height: MediaQuery.of(context).size.height * .05,
                       child: OutlinedButton(
                         onPressed: () async {
+                          final _imageFile = File(selectedImage!.path);
+                          if (_imageFile != null) {
+                            var cloudinary = Cloudinary.fromStringUrl(
+                                'cloudinary://239118281366527:${dotenv.env['CloudinaryApi']}@daj7vxuyb');
+                            final response =
+                                await cloudinary.uploader().upload(_imageFile);
+                            if (response != null &&
+                                response.data != null &&
+                                response.data!.secureUrl != null) {
+                              print('Helllo');
+                              controller.imageUrl = response.data!.secureUrl!;
+                            }
+                          }
                           final userData = ProfileModel(
                             name: _nameController.text.trim(),
                             phone: _phoneController.text.trim(),
@@ -493,18 +530,6 @@ class _EditProfileState extends State<EditProfile> {
     });
     if (selectedImage != null) {
       print('Image Picked!');
-      final _imageFile = File(selectedImage!.path);
-      if (_imageFile != null) {
-        var cloudinary = Cloudinary.fromStringUrl(
-            'cloudinary://239118281366527:${dotenv.env['CloudinaryApi']}@daj7vxuyb');
-        final response = await cloudinary.uploader().upload(_imageFile);
-        if (response != null &&
-            response.data != null &&
-            response.data!.secureUrl != null) {
-          print('Helllo');
-          controller.imageUrl = response.data!.secureUrl!;
-        }
-      }
     }
   }
 
@@ -514,17 +539,5 @@ class _EditProfileState extends State<EditProfile> {
     setState(() {
       selectedImage = File(returnedImage!.path);
     });
-    final _imageFile = File(selectedImage!.path);
-    if (_imageFile != null) {
-      var cloudinary = Cloudinary.fromStringUrl(
-          'cloudinary://239118281366527:${dotenv.env['CloudinaryApi']}@daj7vxuyb');
-      final response = await cloudinary.uploader().upload(_imageFile);
-      if (response != null &&
-          response.data != null &&
-          response.data!.secureUrl != null) {
-        print('Helllo');
-        controller.imageUrl = response.data!.secureUrl!;
-      }
-    }
   }
 }
