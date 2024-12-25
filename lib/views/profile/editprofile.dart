@@ -1,17 +1,12 @@
 import 'dart:io';
-
 import 'package:cloudinary_api/uploader/cloudinary_uploader.dart';
-import 'package:cloudinary_api/uploader/uploader.dart';
 import 'package:cloudinary_url_gen/cloudinary.dart';
-import 'package:cloudinary_url_gen/util/environment.dart';
 import 'package:communityapp/controllers/profile_controller.dart';
 import 'package:communityapp/views/profile/profile_view.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:get/get.dart';
 import 'package:image_picker/image_picker.dart';
-
 import '../../models/profile_model.dart';
 
 class EditProfile extends StatefulWidget {
@@ -124,22 +119,31 @@ class _EditProfileState extends State<EditProfile> {
                                 : Image.asset('assets/images/avatar.png'),
                       ),
                       Transform.translate(
-                        offset: Offset(-23, 20),
+                        offset: Offset(
+                            -MediaQuery.of(context).size.width * .075,
+                            MediaQuery.of(context).size.height * .03),
                         child: InkWell(
                           onTap: () {
                             showModalBottomSheet(
                                 context: context,
                                 builder: (context) {
-                                  return Container(
+                                  return SizedBox(
                                     child: Padding(
                                       padding: const EdgeInsets.symmetric(
                                           vertical: 25, horizontal: 25),
                                       child: Column(
-
                                         children: [
-                                          Text('Pick Image', style: TextStyle(fontSize: 16, ),),
+                                          Text(
+                                            'Pick Image',
+                                            style: TextStyle(
+                                              fontSize: 16,
+                                            ),
+                                          ),
                                           SizedBox(
-                                            height: MediaQuery.of(context).size.height*.04,
+                                            height: MediaQuery.of(context)
+                                                    .size
+                                                    .height *
+                                                .04,
                                           ),
                                           Row(
                                             mainAxisAlignment:
@@ -149,15 +153,30 @@ class _EditProfileState extends State<EditProfile> {
                                                 children: [
                                                   InkWell(
                                                     child: CircleAvatar(
+                                                      radius:
+                                                          MediaQuery.of(context)
+                                                                  .size
+                                                                  .height *
+                                                              .04,
+                                                      backgroundColor:
+                                                          Colors.black,
                                                       child: CircleAvatar(
-                                                          radius: MediaQuery.of(context).size.height*.038,
-                                                        backgroundColor: Color(0xffF7F2F9),
-                                                        child: Center(child: Icon(Icons.camera_alt_rounded, color: Colors.black,)),
+                                                        radius: MediaQuery.of(
+                                                                    context)
+                                                                .size
+                                                                .height *
+                                                            .038,
+                                                        backgroundColor:
+                                                            Color(0xffF7F2F9),
+                                                        child: Center(
+                                                            child: Icon(
+                                                          Icons
+                                                              .camera_alt_rounded,
+                                                          color: Colors.black,
+                                                        )),
                                                       ),
-                                                      radius: MediaQuery.of(context).size.height*.04,
-                                                      backgroundColor: Colors.black,
                                                     ),
-                                                    onTap: (){
+                                                    onTap: () {
                                                       _pickImageFromCamera();
                                                     },
                                                   ),
@@ -168,19 +187,32 @@ class _EditProfileState extends State<EditProfile> {
                                                 children: [
                                                   InkWell(
                                                     child: CircleAvatar(
+                                                      radius:
+                                                          MediaQuery.of(context)
+                                                                  .size
+                                                                  .height *
+                                                              .04,
+                                                      backgroundColor:
+                                                          Colors.black,
                                                       child: CircleAvatar(
-                                                        radius: MediaQuery.of(context).size.height*.038,
-                                                        backgroundColor: Color(0xffF7F2F9),
-                                                        child: Center(child: Icon(Icons.photo, color: Colors.black,)),
+                                                        radius: MediaQuery.of(
+                                                                    context)
+                                                                .size
+                                                                .height *
+                                                            .038,
+                                                        backgroundColor:
+                                                            Color(0xffF7F2F9),
+                                                        child: Center(
+                                                            child: Icon(
+                                                          Icons.photo,
+                                                          color: Colors.black,
+                                                        )),
                                                       ),
-                                                      radius: MediaQuery.of(context).size.height*.04,
-                                                      backgroundColor: Colors.black,
                                                     ),
-                                                    onTap: (){
+                                                    onTap: () {
                                                       _pickImageFromGallery();
                                                     },
                                                   ),
-
                                                   Text('Gallery'),
                                                 ],
                                               ),
@@ -471,16 +503,15 @@ class _EditProfileState extends State<EditProfile> {
                       height: MediaQuery.of(context).size.height * .05,
                       child: OutlinedButton(
                         onPressed: () async {
-                          final _imageFile = File(selectedImage!.path);
-                          if (_imageFile != null) {
+                          final imageFile = File(selectedImage!.path);
+                          if (imageFile.path.isNotEmpty) {
                             var cloudinary = Cloudinary.fromStringUrl(
                                 'cloudinary://239118281366527:${dotenv.env['CloudinaryApi']}@daj7vxuyb');
                             final response =
-                                await cloudinary.uploader().upload(_imageFile);
+                                await cloudinary.uploader().upload(imageFile);
                             if (response != null &&
                                 response.data != null &&
                                 response.data!.secureUrl != null) {
-                              print('Helllo');
                               controller.imageUrl = response.data!.secureUrl!;
                             }
                           }
@@ -495,6 +526,14 @@ class _EditProfileState extends State<EditProfile> {
                           );
                           await controller.UpdateRecord(userData);
                         },
+                        style: ButtonStyle(
+                            backgroundColor:
+                                WidgetStateProperty.all(Color(0xff41BD73)),
+                            side: WidgetStateProperty.all(BorderSide(
+                                width: 0, color: Colors.transparent)),
+                            shape: WidgetStateProperty.all(
+                                RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(15)))),
                         child: Text(
                           'Save',
                           style: TextStyle(
@@ -502,14 +541,6 @@ class _EditProfileState extends State<EditProfile> {
                               fontWeight: FontWeight.w500,
                               color: Colors.white),
                         ),
-                        style: ButtonStyle(
-                            backgroundColor:
-                                MaterialStateProperty.all(Color(0xff41BD73)),
-                            side: MaterialStateProperty.all(BorderSide(
-                                width: 0, color: Colors.transparent)),
-                            shape: MaterialStateProperty.all(
-                                RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(15)))),
                       ),
                     ),
                   ],
@@ -528,9 +559,6 @@ class _EditProfileState extends State<EditProfile> {
     setState(() {
       selectedImage = File(returnedImage!.path);
     });
-    if (selectedImage != null) {
-      print('Image Picked!');
-    }
   }
 
   Future _pickImageFromCamera() async {

@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:get/get_core/src/get_main.dart';
 
 class HelpDesk extends StatefulWidget {
   const HelpDesk({super.key});
@@ -14,142 +13,133 @@ class _HelpDeskState extends State<HelpDesk> {
   Widget build(BuildContext context) {
     return Scaffold(
       body: Container(
-        height: MediaQuery.of(context).size.height * 1,
-        width: MediaQuery.of(context).size.width * 1,
-        decoration: BoxDecoration(
+        height: MediaQuery.of(context).size.height,
+        width: MediaQuery.of(context).size.width,
+        decoration: const BoxDecoration(
           gradient: LinearGradient(
             colors: [
-              const Color(0xffF1EFEF),
-              const Color(0xffFFFFFF),
+              Color(0xffF1EFEF),
+              Color(0xffFFFFFF),
             ],
-            begin: const FractionalOffset(0.0, 0.0),
-            end: const FractionalOffset(1.0, 1.0),
+            begin: FractionalOffset(0.0, 0.0),
+            end: FractionalOffset(1.0, 1.0),
           ),
         ),
-        child: Padding(padding: const EdgeInsets.symmetric(horizontal: 25, vertical: 30),
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 25, vertical: 30),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  IconButton(
+                  Align(
+                    alignment: Alignment.centerLeft,
+                    child: IconButton(
                       onPressed: () {
                         Get.back();
                       },
-                      icon: SizedBox(
-                          height: MediaQuery.of(context).size.height * .04,
-                          width: MediaQuery.of(context).size.width * .07,
-                          child: Icon(
-                            Icons.keyboard_arrow_left,
-                          ))),
-                  Transform.translate(
-                    offset: Offset(-40, 0),
-                    child: Text(
-                      'Help Desk',
-                      style: TextStyle(
-                          fontSize: 18,
-                          fontFamily: 'Inter',
-                          fontWeight: FontWeight.w400),
+                      icon: Icon(
+                        Icons.keyboard_arrow_left,
+                        size: MediaQuery.of(context).size.height * 0.04,
+                      ),
                     ),
                   ),
-                  SizedBox(
-                    height: 0,
-                    width: 0,
-                  )
+                  Expanded(
+                    child: Center(
+                      child: Text(
+                        'Help Desk',
+                        style: const TextStyle(
+                          fontSize: 18,
+                          fontFamily: 'Inter',
+                          fontWeight: FontWeight.w400,
+                        ),
+                      ),
+                    ),
+                  ),
                 ],
               ),
               SizedBox(
-                height: MediaQuery.of(context).size.height * .04,
+                height: MediaQuery.of(context).size.height * 0.04,
               ),
-              Text('Contact options', style: TextStyle(
+              const Text(
+                'Contact options',
+                style: TextStyle(
                   fontSize: 15,
                   fontFamily: 'Inter',
-                  fontWeight: FontWeight.w500),),
-              SizedBox(
-                height: MediaQuery.of(context).size.height * .02,
-              ),
-              TextButton(
-                onPressed: (){},
-                child: Row(
-                  children: [
-                    SizedBox(
-                        height: MediaQuery.of(context).size.height*.035,
-                        width: MediaQuery.of(context).size.width*.06,
-                        child: Image.asset('assets/images/img_7.png')),
-                    SizedBox(width: MediaQuery.of(context).size.width*.04,),
-                    Text('Email Us', style: TextStyle(
-                        fontSize: 13,
-                        color: Colors.black,
-                        fontFamily: 'Inter',
-                        fontWeight: FontWeight.w600),),
-
-                  ],
+                  fontWeight: FontWeight.w500,
                 ),
-                style: ButtonStyle(overlayColor: MaterialStateProperty.all(Color(0xffE6E7E6).withOpacity(.4)),
-                    padding: MaterialStateProperty.all(EdgeInsets.zero),
-                    shape: WidgetStateProperty.all(RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(5),
-
-                    ))),
               ),
-              // SizedBox(
-              //   height: MediaQuery.of(context).size.height*.025,
-              // ),
-              TextButton(
-                  onPressed: (){},
-                  child: Row(
-                    children: [
-                      SizedBox(
-                          height: MediaQuery.of(context).size.height*.035,
-                          width: MediaQuery.of(context).size.width*.06,
-                          child: Image.asset('assets/images/img_8.png')),
-                      SizedBox(width: MediaQuery.of(context).size.width*.04,),
-                      Text('Call Us', style: TextStyle(
-                          color: Colors.black,
-                          fontSize: 13,
-                          fontFamily: 'Inter',
-                          fontWeight: FontWeight.w600),),
-
-                    ],
-                  ),
-                  style: ButtonStyle(overlayColor: MaterialStateProperty.all(Color(0xffE6E7E6).withOpacity(.4)),
-                      padding: MaterialStateProperty.all(EdgeInsets.zero),
-                      shape: WidgetStateProperty.all(RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(5),
-
-                      )))
+              SizedBox(
+                height: MediaQuery.of(context).size.height * 0.02,
               ),
-              // SizedBox(
-              //   height: MediaQuery.of(context).size.height*.025,
-              // ),
-              TextButton(
-                  onPressed: (){},
-                  child: Row(
-                    children: [
-                      SizedBox(
-                          height: MediaQuery.of(context).size.height*.035,
-                          width: MediaQuery.of(context).size.width*.06,
-                          child: Image.asset('assets/images/img_9.png')),
-                      SizedBox(width: MediaQuery.of(context).size.width*.04,),
-                      Text('Chat with Us', style: TextStyle(
-                          color: Colors.black,
-                          fontSize: 13,
-                          fontFamily: 'Inter',
-                          fontWeight: FontWeight.w600),),
-
-                    ],
-                  ),
-                  style: ButtonStyle(overlayColor: MaterialStateProperty.all(Color(0xffE6E7E6).withOpacity(.4)),
-                      padding: MaterialStateProperty.all(EdgeInsets.zero),
-                      shape: WidgetStateProperty.all(RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(5),
-
-                      )))
+              _buildContactOption(
+                context,
+                imagePath: 'assets/images/img_7.png',
+                label: 'Email Us',
+                onPressed: () {
+                  // Handle email action
+                },
+              ),
+              _buildContactOption(
+                context,
+                imagePath: 'assets/images/img_8.png',
+                label: 'Call Us',
+                onPressed: () {
+                  // Handle call action
+                },
+              ),
+              _buildContactOption(
+                context,
+                imagePath: 'assets/images/img_9.png',
+                label: 'Chat with Us',
+                onPressed: () {
+                  // Handle chat action
+                },
               ),
             ],
           ),
         ),
+      ),
+    );
+  }
+
+  Widget _buildContactOption(BuildContext context,
+      {required String imagePath,
+        required String label,
+        required VoidCallback onPressed}) {
+    return TextButton(
+      onPressed: onPressed,
+      style: ButtonStyle(
+        overlayColor: WidgetStateProperty.all(
+          const Color(0xffE6E7E6).withOpacity(0.4),
+        ),
+        padding: WidgetStateProperty.all(EdgeInsets.zero),
+        shape: WidgetStateProperty.all(
+          RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(5),
+          ),
+        ),
+      ),
+      child: Row(
+        children: [
+          SizedBox(
+            height: MediaQuery.of(context).size.height * 0.035,
+            width: MediaQuery.of(context).size.width * 0.06,
+            child: Image.asset(imagePath),
+          ),
+          SizedBox(
+            width: MediaQuery.of(context).size.width * 0.04,
+          ),
+          Text(
+            label,
+            style: const TextStyle(
+              fontSize: 13,
+              color: Colors.black,
+              fontFamily: 'Inter',
+              fontWeight: FontWeight.w600,
+            ),
+          ),
+        ],
       ),
     );
   }

@@ -1,6 +1,5 @@
 import 'package:communityapp/controllers/profile_controller.dart';
 import 'package:communityapp/models/profile_model.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
@@ -12,410 +11,243 @@ class AccountSettings extends StatefulWidget {
 }
 
 class _AccountSettingsState extends State<AccountSettings> {
-  final _auth = FirebaseAuth.instance;
   @override
   Widget build(BuildContext context) {
-    ProfileController controller = Get.put(ProfileController());
+    final ProfileController controller = Get.put(ProfileController());
+    final screenHeight = MediaQuery.of(context).size.height;
+    final screenWidth = MediaQuery.of(context).size.width;
+
+    // Reusable Setting Row Widget
+    Widget buildSettingRow({
+      required String imagePath,
+      required String title,
+      VoidCallback? onPressed,
+    }) {
+      return Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Row(
+            children: [
+              SizedBox(
+                height: screenHeight * .035,
+                width: screenWidth * .06,
+                child: Image.asset(imagePath),
+              ),
+              SizedBox(width: screenWidth * .03),
+              Text(
+                title,
+                style: TextStyle(
+                  fontSize: 13,
+                  fontFamily: 'Inter',
+                  fontWeight: FontWeight.w600,
+                  color: Theme.of(context).textTheme.bodyLarge?.color,
+                ),
+              ),
+            ],
+          ),
+          IconButton(
+            onPressed: onPressed,
+            icon: Icon(
+              Icons.arrow_forward_ios_rounded,
+              color: Theme.of(context).iconTheme.color,
+              size: 19,
+            ),
+          ),
+        ],
+      );
+    }
+
+    // Reusable Button Widget
+    Widget buildThemedButton({
+      required String imagePath,
+      required String title,
+      required VoidCallback onPressed,
+    }) {
+      return TextButton(
+        onPressed: onPressed,
+        style: ButtonStyle(
+          overlayColor: WidgetStateProperty.all(
+            Theme.of(context).colorScheme.secondary.withOpacity(0.4),
+          ),
+          padding: WidgetStateProperty.all(EdgeInsets.zero),
+          shape: WidgetStateProperty.all(
+            RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(5),
+            ),
+          ),
+        ),
+        child: Row(
+          children: [
+            SizedBox(
+              height: screenHeight * .035,
+              width: screenWidth * .06,
+              child: Image.asset(imagePath),
+            ),
+            SizedBox(width: screenWidth * .03),
+            Text(
+              title,
+              style: TextStyle(
+                fontSize: 13,
+                fontFamily: 'Inter',
+                fontWeight: FontWeight.w600,
+                color: Theme.of(context).textTheme.bodyLarge?.color,
+              ),
+            ),
+          ],
+        ),
+      );
+    }
+
     return Scaffold(
       body: Container(
-        height: MediaQuery.of(context).size.height * 1,
-        width: MediaQuery.of(context).size.width * 1,
-        decoration: BoxDecoration(
+        height: screenHeight,
+        width: screenWidth,
+        decoration: const BoxDecoration(
           gradient: LinearGradient(
-            colors: [
-              const Color(0xffF1EFEF),
-              const Color(0xffFFFFFF),
-            ],
-            begin: const FractionalOffset(0.0, 0.0),
-            end: const FractionalOffset(1.0, 1.0),
+            colors: [Color(0xffF1EFEF), Color(0xffFFFFFF)],
+            begin: FractionalOffset(0.0, 0.0),
+            end: FractionalOffset(1.0, 1.0),
           ),
         ),
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 25, vertical: 30),
           child: FutureBuilder(
-              future: controller.getUserData(),
-              builder: (context, snapshot) {
-                if (snapshot.connectionState == ConnectionState.done) {
-                  if (snapshot.hasData) {
-                    ProfileModel userData = snapshot.data as ProfileModel;
-                    return Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            IconButton(
-                                onPressed: () {
-                                  Get.back();
-                                },
-                                icon: SizedBox(
-                                    height: MediaQuery.of(context).size.height *
-                                        .04,
-                                    width:
-                                        MediaQuery.of(context).size.width * .07,
-                                    child: Icon(
-                                      Icons.keyboard_arrow_left,
-                                    ))),
-                            Transform.translate(
-                              offset: Offset(-40, 0),
-                              child: Text(
-                                'Account Settings',
-                                style: TextStyle(
-                                    fontSize: 18,
-                                    fontFamily: 'Inter',
-                                    fontWeight: FontWeight.w400),
-                              ),
-                            ),
-                            SizedBox(
-                              height: 0,
-                              width: 0,
-                            )
-                          ],
-                        ),
-                        SizedBox(
-                          height: MediaQuery.of(context).size.height * .04,
-                        ),
-                        Text(
-                          userData.name,
-                          style: TextStyle(
+            future: controller.getUserData(),
+            builder: (context, snapshot) {
+              if (snapshot.connectionState == ConnectionState.done) {
+                if (snapshot.hasData) {
+                  final ProfileModel userData = snapshot.data as ProfileModel;
+                  return Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      // AppBar Row
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          IconButton(
+                            onPressed: () => Get.back(),
+                            icon:
+                                const Icon(Icons.keyboard_arrow_left, size: 28),
+                          ),
+                          const Text(
+                            'Account Settings',
+                            style: TextStyle(
                               fontSize: 18,
                               fontFamily: 'Inter',
-                              fontWeight: FontWeight.w500),
+                              fontWeight: FontWeight.w400,
+                            ),
+                          ),
+                          const SizedBox(width: 32), // Placeholder for symmetry
+                        ],
+                      ),
+                      SizedBox(height: screenHeight * .04),
+                      // User Name
+                      Text(
+                        userData.name,
+                        style: const TextStyle(
+                          fontSize: 18,
+                          fontFamily: 'Inter',
+                          fontWeight: FontWeight.w500,
                         ),
-                        SizedBox(
-                          height: MediaQuery.of(context).size.height * .03,
-                        ),
-                        Column(
-                          children: [
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: [
-                                Row(
-                                  children: [
-                                    SizedBox(
-                                        height:
-                                            MediaQuery.of(context).size.height *
-                                                .035,
-                                        width:
-                                            MediaQuery.of(context).size.width *
-                                                .06,
-                                        child: Image.asset(
-                                            'assets/images/img_6.png')),
-                                    SizedBox(
-                                      width: MediaQuery.of(context).size.width *
-                                          .03,
-                                    ),
-                                    Text(
-                                      'Your Info',
-                                      style: TextStyle(
-                                          fontSize: 13,
-                                          fontFamily: 'Inter',
-                                          fontWeight: FontWeight.w600),
-                                    ),
-                                  ],
+                      ),
+                      SizedBox(height: screenHeight * .03),
+                      // Settings Rows
+                      Column(
+                        children: [
+                          buildSettingRow(
+                            imagePath: 'assets/images/img_6.png',
+                            title: 'Your Info',
+                            onPressed: () {},
+                          ),
+                          buildSettingRow(
+                            imagePath: 'assets/images/img_5.png',
+                            title: 'Notifications',
+                            onPressed: () {},
+                          ),
+                          buildSettingRow(
+                            imagePath: 'assets/images/img_4.png',
+                            title: 'Password',
+                            onPressed: () {},
+                          ),
+                          buildSettingRow(
+                            imagePath: 'assets/images/img_3.png',
+                            title: 'Theme',
+                            onPressed: () {
+                              Get.bottomSheet(
+                                Container(
+                                  color: Colors.white,
+                                  child: Column(
+                                    mainAxisSize: MainAxisSize.min,
+                                    children: [
+                                      ListTile(
+                                        leading: const Icon(Icons.dark_mode),
+                                        title: const Text('Dark Mode'),
+                                        onTap: () =>
+                                            Get.changeTheme(ThemeData.dark()),
+                                      ),
+                                      ListTile(
+                                        leading: const Icon(Icons.light_mode),
+                                        title: const Text('Light Mode'),
+                                        onTap: () =>
+                                            Get.changeTheme(ThemeData.light()),
+                                      ),
+                                    ],
+                                  ),
                                 ),
-                                IconButton(
-                                    onPressed: () {},
-                                    icon: Icon(
-                                      Icons.arrow_forward_ios_rounded,
-                                      color: Color(0xffC6C6C6),
-                                      size: 19,
-                                    ))
-                              ],
-                            ),
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: [
-                                Row(
-                                  children: [
-                                    SizedBox(
-                                        height:
-                                            MediaQuery.of(context).size.height *
-                                                .035,
-                                        width:
-                                            MediaQuery.of(context).size.width *
-                                                .06,
-                                        child: Image.asset(
-                                            'assets/images/img_5.png')),
-                                    SizedBox(
-                                      width: MediaQuery.of(context).size.width *
-                                          .03,
-                                    ),
-                                    Text(
-                                      'Notifications',
-                                      style: TextStyle(
-                                          fontSize: 13,
-                                          fontFamily: 'Inter',
-                                          fontWeight: FontWeight.w600),
-                                    ),
-                                  ],
+                              );
+                            },
+                          ),
+                          SizedBox(height: screenHeight * .04),
+                          buildThemedButton(
+                            imagePath: 'assets/images/img_2.png',
+                            title: 'Terms & Conditions',
+                            onPressed: () {},
+                          ),
+                          buildThemedButton(
+                            imagePath: 'assets/images/img_1.png',
+                            title: 'Feedback',
+                            onPressed: () {},
+                          ),
+                          buildThemedButton(
+                            imagePath: 'assets/images/img.png',
+                            title: 'Delete Account',
+                            onPressed: () {
+                              Get.defaultDialog(
+                                title: 'Delete Account?',
+                                middleText:
+                                    'Are you sure you want to delete your account?',
+                                confirm: TextButton(
+                                  onPressed: () {
+                                    controller.DeleteAccount(userData.id!);
+                                  },
+                                  child: const Text('Yes'),
                                 ),
-                                IconButton(
-                                    onPressed: () {},
-                                    icon: Icon(
-                                      Icons.arrow_forward_ios_rounded,
-                                      color: Color(0xffC6C6C6),
-                                      size: 19,
-                                    ))
-                              ],
-                            ),
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: [
-                                Row(
-                                  children: [
-                                    SizedBox(
-                                        height:
-                                            MediaQuery.of(context).size.height *
-                                                .035,
-                                        width:
-                                            MediaQuery.of(context).size.width *
-                                                .06,
-                                        child: Image.asset(
-                                            'assets/images/img_4.png')),
-                                    SizedBox(
-                                      width: MediaQuery.of(context).size.width *
-                                          .03,
-                                    ),
-                                    Text(
-                                      'Password',
-                                      style: TextStyle(
-                                          fontSize: 13,
-                                          fontFamily: 'Inter',
-                                          fontWeight: FontWeight.w600),
-                                    ),
-                                  ],
+                                cancel: TextButton(
+                                  onPressed: () => Get.back(),
+                                  child: const Text('No'),
                                 ),
-                                IconButton(
-                                    onPressed: () {},
-                                    icon: Icon(
-                                      Icons.arrow_forward_ios_rounded,
-                                      color: Color(0xffC6C6C6),
-                                      size: 19,
-                                    ))
-                              ],
-                            ),
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: [
-                                Row(
-                                  children: [
-                                    SizedBox(
-                                        height:
-                                            MediaQuery.of(context).size.height *
-                                                .035,
-                                        width:
-                                            MediaQuery.of(context).size.width *
-                                                .06,
-                                        child: Image.asset(
-                                            'assets/images/img_3.png')),
-                                    SizedBox(
-                                      width: MediaQuery.of(context).size.width *
-                                          .03,
-                                    ),
-                                    Text(
-                                      'Theme',
-                                      style: TextStyle(
-                                          fontSize: 13,
-                                          fontFamily: 'Inter',
-                                          fontWeight: FontWeight.w600),
-                                    ),
-                                  ],
-                                ),
-                                IconButton(
-                                    onPressed: () {
-                                      Get.bottomSheet(
-                                        backgroundColor: Colors.white,
-                                          Container(
-                                        child: Column(
-                                          children: [
-                                            TextButton(
-                                              onPressed: () {
-                                                Get.changeTheme(
-                                                    ThemeData.dark());
-                                              },
-                                              child: ListTile(
-                                                title: Row(
-                                                  children: [
-                                                    Icon(Icons.dark_mode),
-                                                    Text('Dark Mode'),
-                                                  ],
-                                                ),
-                                              ),
-                                            ),
-                                            TextButton(
-                                              onPressed: () {
-                                                Get.changeTheme(
-                                                    ThemeData.light());
-                                              },
-                                              child: ListTile(
-                                                title: Row(
-                                                  children: [
-                                                    Icon(Icons.light_mode),
-                                                    Text('Light Mode'),
-                                                  ],
-                                                ),
-                                              ),
-                                            ),
-                                          ],
-                                        ),
-                                      ));
-                                    },
-                                    icon: Icon(
-                                      Icons.arrow_forward_ios_rounded,
-                                      color: Color(0xffC6C6C6),
-                                      size: 19,
-                                    ))
-                              ],
-                            ),
-                            SizedBox(
-                              height: MediaQuery.of(context).size.height * .04,
-                            ),
-                            TextButton(
-                              onPressed: () {},
-                              child: Row(
-                                children: [
-                                  SizedBox(
-                                      height:
-                                          MediaQuery.of(context).size.height *
-                                              .035,
-                                      width: MediaQuery.of(context).size.width *
-                                          .06,
-                                      child: Image.asset(
-                                          'assets/images/img_2.png')),
-                                  SizedBox(
-                                    width:
-                                        MediaQuery.of(context).size.width * .03,
-                                  ),
-                                  Text(
-                                    'Terms & Conditions',
-                                    style: TextStyle(
-                                        fontSize: 13,
-                                        fontFamily: 'Inter',
-                                        color: Colors.black,
-                                        fontWeight: FontWeight.w600),
-                                  ),
-                                ],
-                              ),
-                              style: ButtonStyle(
-                                  overlayColor: MaterialStateProperty.all(
-                                      Color(0xffE6E7E6).withOpacity(.4)),
-                                  padding: MaterialStateProperty.all(
-                                      EdgeInsets.zero),
-                                  shape: WidgetStateProperty.all(
-                                      RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(5),
-                                  ))),
-                            ),
-                            // SizedBox(
-                            //   height: MediaQuery.of(context).size.height*.025,
-                            // ),
-                            TextButton(
-                              onPressed: () {},
-                              child: Row(
-                                children: [
-                                  SizedBox(
-                                      height:
-                                          MediaQuery.of(context).size.height *
-                                              .035,
-                                      width: MediaQuery.of(context).size.width *
-                                          .06,
-                                      child: Image.asset(
-                                          'assets/images/img_1.png')),
-                                  SizedBox(
-                                    width:
-                                        MediaQuery.of(context).size.width * .03,
-                                  ),
-                                  Text(
-                                    'Feedback',
-                                    style: TextStyle(
-                                        fontSize: 13,
-                                        color: Colors.black,
-                                        fontFamily: 'Inter',
-                                        fontWeight: FontWeight.w600),
-                                  ),
-                                ],
-                              ),
-                              style: ButtonStyle(
-                                  overlayColor: MaterialStateProperty.all(
-                                      Color(0xffE6E7E6).withOpacity(.4)),
-                                  padding: MaterialStateProperty.all(
-                                      EdgeInsets.zero),
-                                  shape: WidgetStateProperty.all(
-                                      RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(5),
-                                  ))),
-                            ),
-                            // SizedBox(
-                            //   height: MediaQuery.of(context).size.height*.025,
-                            // ),
-                            TextButton(
-                              onPressed: () {
-                                Get.defaultDialog(
-                                  titlePadding: EdgeInsets.only(top: 10),
-                                  title: 'Delete Account?',
-                                  titleStyle: TextStyle(fontSize: 20),
-                                  middleText:
-                                      'Are you sure, you want to delete your account?',
-                                  confirm: TextButton(
-                                      onPressed: () {}, child: Text('Yes')),
-                                  cancel: TextButton(
-                                      onPressed: () {
-                                        Get.back();
-                                      },
-                                      child: Text('No')),
-                                );
-                              },
-                              child: Row(
-                                children: [
-                                  SizedBox(
-                                      height:
-                                          MediaQuery.of(context).size.height *
-                                              .035,
-                                      width: MediaQuery.of(context).size.width *
-                                          .06,
-                                      child:
-                                          Image.asset('assets/images/img.png')),
-                                  SizedBox(
-                                    width:
-                                        MediaQuery.of(context).size.width * .03,
-                                  ),
-                                  Text(
-                                    'Delete Account',
-                                    style: TextStyle(
-                                        fontSize: 13,
-                                        fontFamily: 'Inter',
-                                        color: Colors.black,
-                                        fontWeight: FontWeight.w600),
-                                  ),
-                                ],
-                              ),
-                              style: ButtonStyle(
-                                  overlayColor: MaterialStateProperty.all(
-                                      Color(0xffE6E7E6).withOpacity(.4)),
-                                  padding: MaterialStateProperty.all(
-                                      EdgeInsets.zero),
-                                  shape: WidgetStateProperty.all(
-                                      RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(5),
-                                  ))),
-                            ),
-                          ],
-                        )
-                      ],
-                    );
-                  }
-                } else if (snapshot.hasError) {
-                  return Center(
-                    child: Text(snapshot.error.toString()),
-                  );
-                } else {
-                  return const Center(
-                    child: CircularProgressIndicator(),
+                              );
+                            },
+                          ),
+                        ],
+                      ),
+                    ],
                   );
                 }
-                return Text('Something Went Wrong');
-              }),
+              } else if (snapshot.connectionState == ConnectionState.waiting) {
+                return const Center(
+                    child: CircularProgressIndicator(color: Colors.black));
+              } else if (snapshot.hasError) {
+                return Center(
+                  child: Text(
+                    'Error: ${snapshot.error}',
+                    style: const TextStyle(color: Colors.red),
+                  ),
+                );
+              }
+              return const Center(child: Text('Something went wrong.'));
+            },
+          ),
         ),
       ),
     );

@@ -1,10 +1,4 @@
 import 'package:communityapp/firebase_options.dart';
-import 'package:communityapp/views/auth/login_view.dart';
-import 'package:communityapp/views/profile/accountsettings.dart';
-import 'package:communityapp/views/profile/editprofile.dart';
-import 'package:communityapp/views/profile/inputpage.dart';
-import 'package:communityapp/views/profile/loginpage.dart';
-import 'package:communityapp/views/profile/profile_view.dart';
 import 'package:communityapp/views/profile/signuppage.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';

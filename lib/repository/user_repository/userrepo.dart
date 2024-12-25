@@ -1,6 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:communityapp/models/profile_model.dart';
-import 'package:communityapp/models/user_model.dart';
+//import 'package:communityapp/models/user_model.dart';
 import 'package:get/get.dart';
 
 class UserRepo extends GetxController {
@@ -28,5 +28,9 @@ class UserRepo extends GetxController {
   Future<void> UpdateuserRecord(ProfileModel profile) async {
     print('${profile.id}');
     _db.collection('users').doc(profile.id).update(profile.toJson()).whenComplete((){Get.snackbar('Done!', 'ProfileUpdated');});
+  }
+  Future<void> DeleteuserRecord(String Id) async {
+   // print('${profile.id}');
+    await _db.collection('users').doc(Id).delete();
   }
 }

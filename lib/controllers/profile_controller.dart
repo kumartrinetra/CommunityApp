@@ -1,7 +1,8 @@
 import 'package:communityapp/models/profile_model.dart';
 import 'package:communityapp/repository/user_repository/userrepo.dart';
+import 'package:communityapp/views/profile/signuppage.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:flutter/cupertino.dart';
+//import 'package:flutter/cupertino.dart';
 import 'package:get/get.dart';
 class ProfileController extends GetxController{
   static ProfileController get instance => Get.find();
@@ -27,5 +28,20 @@ class ProfileController extends GetxController{
   {
     await userRepo.UpdateuserRecord(profile);
   }
-
+  DeleteAccount(String Id) async
+  {
+    final user = _auth.currentUser;
+    try{
+      if(user != null)
+      {
+        await user.delete();
+        userRepo.DeleteuserRecord(Id);
+        Get.snackbar('Done!', 'Account Deleted');
+        Get.to(LoginPage());
+      }
+    }
+    catch(e){
+      Get.snackbar('Error!', 'Failed to delete account');
+    }
+  }
 }
